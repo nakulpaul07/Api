@@ -2,7 +2,6 @@ const express = require('express')
 const UserController = require('../controller/UserController')
 const checkUserAuth = require('../middleware/auth')
 const cartegoryController = require('../controller/cartegory')
-const CartegoryModel = require('../model/cartegory')
 const ProductController = require('../controller/ProductController')
 const router = express.Router()
 

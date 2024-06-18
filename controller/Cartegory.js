@@ -59,8 +59,6 @@ class cartegoryController {
         }
     }
 
-
-
 }
 
 module.exports = cartegoryController
