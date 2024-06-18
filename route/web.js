@@ -1,7 +1,7 @@
 const express = require('express')
 const UserController = require('../controller/UserController')
 const checkUserAuth = require('../middleware/auth')
-// const cartegoryController = require('../controller/cartegory')
+const cartegoryController = require('../controller/Cartegory')
 const ProductController = require('../controller/ProductController')
 const router = express.Router()
 
@@ -17,9 +17,9 @@ router.post('/getSinleUser/:id', checkUserAuth, UserController.getSinleUser)
 
 
 // cartegory
-// router.post('/createCategory', cartegoryController.createCategory)
-// router.post('/getAllCategories', cartegoryController.getAllCategories)
-// router.post('/getCategoryDetail/:id', cartegoryController.getCategoryDetail)
+router.post('/createCategory', cartegoryController.createCategory)
+router.post('/getAllCategories', cartegoryController.getAllCategories)
+router.post('/getCategoryDetail/:id', cartegoryController.getCategoryDetail)
 
 
 
