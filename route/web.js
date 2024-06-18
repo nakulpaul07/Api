@@ -22,7 +22,9 @@ router.post('/createCategory', cartegoryController.createCategory)
 router.post('/getAllCategories', cartegoryController.getAllCategories)
 router.post('/getCategoryDetail/:id', cartegoryController.getCategoryDetail)
 
-// Product
+
+
+// Product Creat
 router.post('/createProduct', ProductController.createProduct)
 router.post('/getProductDetail/:id', ProductController.getProductDetail)
 router.post('/getAdminProduct', ProductController.getAdminProduct)
