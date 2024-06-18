@@ -32,20 +32,4 @@ router.post('/updateProduct', ProductController.updateProduct)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 module.exports = router
