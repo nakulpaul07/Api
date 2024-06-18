@@ -1,5 +1,6 @@
 const UserModel = require('../model/user')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
@@ -21,6 +22,9 @@ class UserController {
     }
 
     static registerUser = async (req, res) => {
+        // console.log(req.body)
+        // console.log(req.files.image)
+
         try {
 
             //  console.log(req.files.image)
@@ -70,7 +74,7 @@ class UserController {
             console.log(error)
         }
 
-    }
+     }
 
     static loginuser = async (req, res) => {
         try {
@@ -82,40 +86,33 @@ class UserController {
                 if (user != null) {
                     const isMatched = await bcrypt.compare(password, user.password)
                     if (isMatched) {
-                        if (user.role == "admin") {
-                            // token gen.
-                            let token = jwt.sign({ ID: user.id }, "nakulpalqpeisf124kskffl")
-                            // console.log(token);
-                            res.cookie("token", token)
 
+                        // token gen.
+                        const token = jwt.sign({ ID: user._id }, "nakulpalqpeisf124kskffl")
+                        // console.log(token);
+                        res.cookie("token", token)
 
-                            res.redirect('/admin/dashboard')
-                        } else {
-                            // token gen.
-                            let token = jwt.sign({ ID: user.id }, "nakulpalqpeisf124kskffl")
-                            // console.log(token);
-                            res.cookie("token", token)
+                        res.status(201).json({ status: "success", message: "Login OK Report", token: token, user })
 
-
-                            res.redirect('/dashboard')
-                        }
 
                     }
                     else {
-                        req.flash("error", "You are not a register User");
-                        res.redirect("/");
+                        res.status(401).json({ status: "failed", message: "Email pr password are not same" })
                     }
                 }
-
                 else {
-                    req.flash("error", "All Field are required");
-                    res.redirect("/");
+                    res.status(401).json({ status: "failed", message: "you are not a regis user" })
                 }
 
+
+            } else {
+                res.status(401).json({ status: "failed", message: "All field require" })
 
             }
 
-        } catch (error) {
+        }
+
+        catch (error) {
             console.log('error')
 
         }
@@ -123,9 +120,8 @@ class UserController {
 
     static logout = async (req, res) => {
         try {
-            res.clearCookie("token")
-            res.redirect('/')
-
+            res.clearCookie("token", null,)
+            res.status(201).json({ status: "success", message: "Logout Buddy" })
         } catch (error) {
             console.log('error')
 
@@ -134,31 +130,28 @@ class UserController {
 
     static updatepassword = async (req, res) => {
         try {
-            const { op, np, cp } = req.body;
-            const { id } = req.userdata;
-            if (op && np && cp) {
+            // console.log(req.userdata)
+            const { oldpassword, newpassword, confirmpassword } = req.body;
+            const { id } = req.userdata
+            if (oldpassword && newpassword && confirmpassword) {
                 const user = await UserModel.findById(id);
-                const isMatched = await bcrypt.compare(op, user.password);
-                console.log(isMatched);
+                const isMatched = await bcrypt.compare(oldpassword, user.password);
+                // console.log(isMatched)
                 if (!isMatched) {
-                    req.flash("error", "current password is incorrect");
-                    res.redirect("/profile");
+                    res.status(401).json({ status: "failed", message: "current password is incorrect" })
                 } else {
-                    if (np != cp) {
-                        req.flash("error", "password does not match");
-                        res.redirect("/profile");
+                    if (newpassword != confirmpassword) {
+                        res.status(401).json({ status: "failed", message: "password does not match" })
                     } else {
-                        const newHashPassword = await bcrypt.hash(np, 10);
+                        const newHashPassword = await bcrypt.hash(newpassword, 10);
                         await UserModel.findByIdAndUpdate(id, {
                             password: newHashPassword,
                         });
-                        req.flash("success", "password updated successfully");
-                        res.redirect("/");
+                        res.status(201).json({ status: "success", message: "password updated successfully" })
                     }
                 }
             } else {
-                req.flash("error", "all fields are required");
-                res.redirect("/profile");
+                res.status(401).json({ status: "failed", message: "all fields are required" })
             }
         } catch (error) {
             console.log(error);
@@ -178,7 +171,7 @@ class UserController {
                 // new image
                 const imagefile = req.files.image
                 const imageupload = await cloudinary.uploader.upload(imagefile.tempFilePath, {
-                    folder: "profileImage"
+                    folder: "profileapiimage"
                 })
 
                 var data = {
@@ -199,18 +192,36 @@ class UserController {
 
             }
 
-            await UserModel.findByIdAndUpdate(id, data)
-            req.flash("success", "Update Successfully");
-            res.redirect("/profile");
+            const updateuserProfile = await UserModel.findByIdAndUpdate(id, data)
+            res.status(200).json({
+                succes: true,
+                updateuserProfile,
+            })
 
         } catch (error) {
 
         }
     }
 
+    static getALLUser = async (req, res) => {
+        try {
+            const data = await UserModel.find()
+            res.status(200).json({ data })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    static getSinleUser = async (req, res) => {
+        try {
+            const data = await UserModel.findById(req.params.id)
+            res.status(200).json({ success: true, data })
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
 }
-
 
 
 module.exports = UserController

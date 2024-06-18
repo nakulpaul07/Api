@@ -3,6 +3,8 @@ const app = express()
 const dotenv = require('dotenv')
 dotenv.config({ path: './.env' })
 const web = require('./route/web')
+const cors=require('cors')
+
 
 const connectDb = require('./db/connectdb')
 
@@ -20,26 +22,20 @@ app.use(express.json())
 connectDb()
 
 // for connectivity to react
-const cors = require('cors')
+// const cors = require('cors')
 
-app.use(cors())
+// app.use(cors())
+
+
+const cookieParse = require('cookie-parser')
+
+// token gET
+app.use(cookieParse());
 
 
 // load route
 app.use('/api', web)
 // Localhost:4000/api
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
